@@ -5,6 +5,7 @@ import { ReportsProvider } from '@/contexts/ReportsContext';
 import { EInvoiceProvider } from '@/contexts/EInvoiceContext';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { AuthStatus } from '@/components/AuthStatus';
 
 export const metadata = {
   title: 'SumSip - Financial Management',
@@ -37,6 +38,7 @@ export default function RootLayout({ children }) {
                     {children}
                   </main>
                   <Footer />
+                  <AuthStatus />
                 </div>
               </EInvoiceProvider>
             </ReportsProvider>

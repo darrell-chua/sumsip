@@ -1,191 +1,209 @@
-'use client'
-import { createContext, useContext, useState, useEffect } from 'react'
-import { useAuth } from './AuthContext'
-import { getLocalStorage, setLocalStorage } from '@/lib/utils'
+'use client';
 
-const CompanyContext = createContext({})
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useAuth } from './AuthContext';
+import { companiesService } from '@/lib/services/companies.service';
 
-export function CompanyProvider({ children }) {
-  const [companies, setCompanies] = useState([])
-  const [selectedCompany, setSelectedCompany] = useState(null)
-  const { user } = useAuth()
+const CompanyContext = createContext({
+  companies: [],
+  selectedCompany: null,
+  loading: false,
+  error: null,
+  createCompany: async () => {},
+  updateCompany: async () => {},
+  deleteCompany: async () => {},
+  selectCompany: () => {},
+  refreshCompanies: async () => {},
+});
 
+export const useCompany = () => useContext(CompanyContext);
+
+export const CompanyProvider = ({ children }) => {
+  const { user, isAuthenticated } = useAuth();
+  const [companies, setCompanies] = useState([]);
+  const [selectedCompany, setSelectedCompany] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Load companies when user is authenticated
   useEffect(() => {
-    if (user) {
-      // Load companies from localStorage
-      const savedCompanies = getLocalStorage(`sumsip_companies_${user.id}`, [])
-      
-      // If no companies exist, create sample data
-      if (savedCompanies.length === 0) {
-        const sampleCompanies = [
-          {
-            id: Date.now().toString(),
-            name: 'My Coffee Shop',
-            industry: 'Food & Beverage',
-            status: 'active',
-            createdAt: new Date().toISOString()
-          }
-        ]
-        setCompanies(sampleCompanies)
-        setSelectedCompany(sampleCompanies[0])
-        setLocalStorage(`sumsip_companies_${user.id}`, sampleCompanies)
-        setLocalStorage(`sumsip_selected_company_${user.id}`, sampleCompanies[0].id)
-        
-        // Create sample transactions for the demo company
-        const sampleTransactions = [
-          {
-            id: '1',
-            date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 7 days ago
-            description: 'Coffee Sales',
-            category: 'Sales',
-            type: 'income',
-            amount: 450.00
-          },
-          {
-            id: '2',
-            date: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 6 days ago
-            description: 'Coffee Beans Purchase',
-            category: 'Inventory',
-            type: 'expense',
-            amount: 120.00
-          },
-          {
-            id: '3',
-            date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 5 days ago
-            description: 'Daily Sales',
-            category: 'Sales',
-            type: 'income',
-            amount: 380.00
-          },
-          {
-            id: '4',
-            date: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 4 days ago
-            description: 'Electricity Bill',
-            category: 'Utilities',
-            type: 'expense',
-            amount: 85.00
-          },
-          {
-            id: '5',
-            date: new Date().toISOString().split('T')[0], // Today
-            description: 'Morning Sales',
-            category: 'Sales',
-            type: 'income',
-            amount: 280.00
-          }
-        ]
-        setLocalStorage(`sumsip_transactions_${sampleCompanies[0].id}`, sampleTransactions)
-      } else {
-        setCompanies(savedCompanies)
-        
-        // Get selected company from localStorage or select the first one
-        const savedSelectedId = getLocalStorage(`sumsip_selected_company_${user.id}`)
-        if (savedSelectedId) {
-          const selected = savedCompanies.find(c => c.id === savedSelectedId)
-          if (selected) {
-            setSelectedCompany(selected)
-          } else if (savedCompanies.length > 0) {
-            setSelectedCompany(savedCompanies[0])
-          }
-        } else if (savedCompanies.length > 0) {
-          setSelectedCompany(savedCompanies[0])
+    if (isAuthenticated && user) {
+      loadCompanies();
+    } else {
+      // Clear data when not authenticated
+      setCompanies([]);
+      setSelectedCompany(null);
+    }
+  }, [isAuthenticated, user]);
+
+  // Load selected company from localStorage
+  useEffect(() => {
+    if (companies.length > 0 && !selectedCompany) {
+      const savedCompanyId = localStorage.getItem('sumsip_selected_company_id');
+      if (savedCompanyId) {
+        const company = companies.find(c => c.id === savedCompanyId);
+        if (company) {
+          setSelectedCompany(company);
+        } else {
+          // If saved company not found, select the default one
+          const defaultCompany = companies.find(c => c.is_default) || companies[0];
+          selectCompany(defaultCompany);
         }
-      }
-    }
-  }, [user])
-
-  const addCompany = (companyData) => {
-    if (!user) return null
-    
-    const newCompany = { 
-      ...companyData, 
-      id: Date.now().toString(),
-      status: companyData.status || 'active',
-      createdAt: new Date().toISOString()
-    }
-    
-    const updatedCompanies = [...companies, newCompany]
-    setCompanies(updatedCompanies)
-    setSelectedCompany(newCompany)
-    
-    setLocalStorage(`sumsip_companies_${user.id}`, updatedCompanies)
-    setLocalStorage(`sumsip_selected_company_${user.id}`, newCompany.id)
-    
-    return newCompany
-  }
-
-  const updateCompany = (id, data) => {
-    if (!user) return null
-    
-    const updatedCompanies = companies.map(company => {
-      if (company.id === id) {
-        return { ...company, ...data }
-      }
-      return company
-    })
-    
-    setCompanies(updatedCompanies)
-    
-    // If the updated company is the selected one, update selectedCompany as well
-    if (selectedCompany && selectedCompany.id === id) {
-      const updated = updatedCompanies.find(c => c.id === id)
-      setSelectedCompany(updated)
-    }
-    
-    setLocalStorage(`sumsip_companies_${user.id}`, updatedCompanies)
-    
-    return updatedCompanies.find(c => c.id === id)
-  }
-
-  const deleteCompany = (id) => {
-    if (!user) return false
-    
-    const updatedCompanies = companies.filter(company => company.id !== id)
-    setCompanies(updatedCompanies)
-    
-    // Delete company's transactions as well
-    localStorage.removeItem(`sumsip_transactions_${id}`)
-    
-    // If the deleted company is the selected one, select another one
-    if (selectedCompany && selectedCompany.id === id) {
-      if (updatedCompanies.length > 0) {
-        setSelectedCompany(updatedCompanies[0])
-        setLocalStorage(`sumsip_selected_company_${user.id}`, updatedCompanies[0].id)
       } else {
-        setSelectedCompany(null)
-        setLocalStorage(`sumsip_selected_company_${user.id}`, null)
+        // No saved selection, use default
+        const defaultCompany = companies.find(c => c.is_default) || companies[0];
+        selectCompany(defaultCompany);
       }
     }
-    
-    setLocalStorage(`sumsip_companies_${user.id}`, updatedCompanies)
-    
-    return true
-  }
+  }, [companies]);
 
-  const selectCompany = (id) => {
-    if (!user) return null
-    
-    const company = companies.find(c => c.id === id)
-    if (company) {
-      setSelectedCompany(company)
-      setLocalStorage(`sumsip_selected_company_${user.id}`, id)
-      return company
+  const loadCompanies = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const { companies: loadedCompanies, error: loadError } = await companiesService.getUserCompanies();
+      
+      if (loadError) {
+        setError(loadError);
+        return;
+      }
+      
+      setCompanies(loadedCompanies);
+    } catch (err) {
+      console.error('Error loading companies:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-    return null
-  }
+  };
+
+  const createCompany = async (companyData) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const { company, error: createError } = await companiesService.createCompany(companyData);
+      
+      if (createError) {
+        setError(createError);
+        return { success: false, error: createError };
+      }
+      
+      // Reload companies to get the updated list
+      await loadCompanies();
+      
+      // Select the new company
+      if (company) {
+        selectCompany(company);
+      }
+      
+      return { success: true, company };
+    } catch (err) {
+      console.error('Error creating company:', err);
+      setError(err.message);
+      return { success: false, error: err.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateCompany = async (companyId, updates) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const { company, error: updateError } = await companiesService.updateCompany(companyId, updates);
+      
+      if (updateError) {
+        setError(updateError);
+        return { success: false, error: updateError };
+      }
+      
+      // Update local state
+      setCompanies(prevCompanies => 
+        prevCompanies.map(c => c.id === companyId ? { ...c, ...updates } : c)
+      );
+      
+      // Update selected company if it's the one being updated
+      if (selectedCompany?.id === companyId) {
+        setSelectedCompany(prev => ({ ...prev, ...updates }));
+      }
+      
+      return { success: true, company };
+    } catch (err) {
+      console.error('Error updating company:', err);
+      setError(err.message);
+      return { success: false, error: err.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteCompany = async (companyId) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const { error: deleteError } = await companiesService.deleteCompany(companyId);
+      
+      if (deleteError) {
+        setError(deleteError);
+        return { success: false, error: deleteError };
+      }
+      
+      // Remove from local state
+      setCompanies(prevCompanies => prevCompanies.filter(c => c.id !== companyId));
+      
+      // If deleted company was selected, select another
+      if (selectedCompany?.id === companyId) {
+        const remainingCompanies = companies.filter(c => c.id !== companyId);
+        const newSelection = remainingCompanies.find(c => c.is_default) || remainingCompanies[0] || null;
+        selectCompany(newSelection);
+      }
+      
+      return { success: true };
+    } catch (err) {
+      console.error('Error deleting company:', err);
+      setError(err.message);
+      return { success: false, error: err.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const selectCompany = (company) => {
+    if (!company) {
+      setSelectedCompany(null);
+      localStorage.removeItem('sumsip_selected_company_id');
+      return;
+    }
+    
+    setSelectedCompany(company);
+    localStorage.setItem('sumsip_selected_company_id', company.id);
+    
+    // Also save to localStorage for backward compatibility during migration
+    localStorage.setItem('sumsip_selected_company', JSON.stringify(company));
+  };
+
+  const refreshCompanies = async () => {
+    await loadCompanies();
+  };
+
+  const value = {
+    companies,
+    selectedCompany,
+    loading,
+    error,
+    createCompany,
+    updateCompany,
+    deleteCompany,
+    selectCompany,
+    refreshCompanies,
+  };
 
   return (
-    <CompanyContext.Provider value={{ 
-      companies, 
-      selectedCompany, 
-      addCompany, 
-      updateCompany,
-      deleteCompany,
-      selectCompany 
-    }}>
+    <CompanyContext.Provider value={value}>
       {children}
     </CompanyContext.Provider>
-  )
-}
-
-export const useCompany = () => useContext(CompanyContext)
+  );
+};
