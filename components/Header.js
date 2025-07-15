@@ -18,7 +18,7 @@ export function Header() {
   // Navigation items for single user
   const navigation = [
     { name: 'Dashboard', href: '/dashboard' },
-    { name: 'Accounts', href: '/accounts' },
+    { name: 'Transactions', href: '/accounts' },
     { name: 'E-Invoice', href: '/e-invoice' },
     { name: 'Reports', href: '/reports' },
     { name: 'Companies', href: '/companies' },

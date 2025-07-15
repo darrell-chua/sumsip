@@ -116,7 +116,7 @@ export default function AccountsPage() {
       <header>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-bold leading-tight tracking-tight text-gray-900">
-            NEW - Accounts
+            Transaction Records
           </h1>
           <p className="mt-2 text-gray-600">Manage your financial transactions</p>
         </div>

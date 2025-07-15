@@ -115,48 +115,49 @@ export default function ReportsPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Transaction Report</h1>
-      <div className="flex flex-wrap gap-4 mb-4">
-        <div>
-          <label>Date From</label>
-          <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} className="border rounded px-2 py-1" />
-        </div>
-        <div>
-          <label>Date To</label>
-          <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} className="border rounded px-2 py-1" />
-        </div>
-        <div>
-          <label>Category</label>
-          <select value={category} onChange={e => setCategory(e.target.value)} className="border rounded px-2 py-1">
-            {categories.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-          </select>
-        </div>
-        <div>
-          <label>Type</label>
-          <select value={type} onChange={e => setType(e.target.value)} className="border rounded px-2 py-1">
-            {types.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-          </select>
-        </div>
-        <button onClick={handleDownloadPDF} className="ml-auto bg-indigo-600 text-white px-4 py-2 rounded">Download as PDF</button>
-      </div>
-      <div className="mb-6">
-        <div className="flex gap-8">
-          <div className="bg-green-100 p-4 rounded w-1/3">
-            <div className="text-green-700 font-bold">Total Income</div>
-            <div className="text-2xl">RM {totalIncome.toFixed(2)}</div>
+    <div className="max-w-6xl mx-auto px-4 py-10">
+      <h1 className="text-3xl font-bold text-gray-900 mb-2">Transaction Report</h1>
+      <p className="text-gray-600 mb-6">View, filter, and export your company transactions with summary and chart.</p>
+      <div className="bg-white rounded-lg shadow p-6 mb-8">
+        <div className="flex flex-wrap gap-4 items-end">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Date From</label>
+            <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} className="border border-gray-300 rounded px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500" />
           </div>
-          <div className="bg-red-100 p-4 rounded w-1/3">
-            <div className="text-red-700 font-bold">Total Expenses</div>
-            <div className="text-2xl">RM {totalExpenses.toFixed(2)}</div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Date To</label>
+            <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} className="border border-gray-300 rounded px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500" />
           </div>
-          <div className="bg-blue-100 p-4 rounded w-1/3">
-            <div className="text-blue-700 font-bold">Net Profit</div>
-            <div className="text-2xl">RM {netProfit.toFixed(2)}</div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+            <select value={category} onChange={e => setCategory(e.target.value)} className="border border-gray-300 rounded px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500">
+              {categories.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+            </select>
           </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+            <select value={type} onChange={e => setType(e.target.value)} className="border border-gray-300 rounded px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500">
+              {types.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+            </select>
+          </div>
+          <button onClick={handleDownloadPDF} className="ml-auto bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded font-semibold shadow transition">Download as PDF</button>
         </div>
       </div>
-      <div ref={chartRef} className="mb-6 bg-white p-4 rounded shadow" style={{ width: '100%', height: 300 }}>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="bg-green-50 border border-green-200 rounded-lg p-6 flex flex-col items-center">
+          <div className="text-green-700 font-semibold text-sm mb-1">Total Income</div>
+          <div className="text-2xl font-bold text-green-700">RM {totalIncome.toFixed(2)}</div>
+        </div>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 flex flex-col items-center">
+          <div className="text-red-700 font-semibold text-sm mb-1">Total Expenses</div>
+          <div className="text-2xl font-bold text-red-700">RM {totalExpenses.toFixed(2)}</div>
+        </div>
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 flex flex-col items-center">
+          <div className="text-blue-700 font-semibold text-sm mb-1">Net Profit</div>
+          <div className="text-2xl font-bold text-blue-700">RM {netProfit.toFixed(2)}</div>
+        </div>
+      </div>
+      <div ref={chartRef} className="mb-8 bg-white rounded-lg shadow p-6" style={{ width: '100%', height: 320 }}>
         <ResponsiveContainer width="100%" height={250}>
           <LineChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
             <XAxis dataKey="date" />
@@ -168,32 +169,35 @@ export default function ReportsPage() {
           </LineChart>
         </ResponsiveContainer>
       </div>
-      <div className="bg-white p-4 rounded shadow">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="p-2">Date</th>
-              <th className="p-2">Category</th>
-              <th className="p-2">Type</th>
-              <th className="p-2">Amount</th>
-              <th className="p-2">Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map(t => (
-              <tr key={t.id}>
-                <td className="p-2">{t.date}</td>
-                <td className="p-2">{t.category}</td>
-                <td className="p-2">{t.type}</td>
-                <td className="p-2">RM {Number(t.amount).toFixed(2)}</td>
-                <td className="p-2">{t.description}</td>
+      <div className="bg-white rounded-lg shadow p-6">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Transactions</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left">
+            <thead>
+              <tr className="bg-gray-100 text-gray-700">
+                <th className="p-2 font-semibold">Date</th>
+                <th className="p-2 font-semibold">Category</th>
+                <th className="p-2 font-semibold">Type</th>
+                <th className="p-2 font-semibold">Amount</th>
+                <th className="p-2 font-semibold">Description</th>
               </tr>
-            ))}
-            {filtered.length === 0 && (
-              <tr><td colSpan={5} className="text-center text-gray-400">No transactions found.</td></tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filtered.map(t => (
+                <tr key={t.id} className="border-b last:border-0 hover:bg-gray-50">
+                  <td className="p-2">{t.date}</td>
+                  <td className="p-2">{t.category}</td>
+                  <td className="p-2 capitalize">{t.type}</td>
+                  <td className="p-2">RM {Number(t.amount).toFixed(2)}</td>
+                  <td className="p-2">{t.description}</td>
+                </tr>
+              ))}
+              {filtered.length === 0 && (
+                <tr><td colSpan={5} className="text-center text-gray-400 py-4">No transactions found.</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
