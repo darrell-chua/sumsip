@@ -27,15 +27,6 @@ export default function CompaniesPage() {
     // Show companies for a single user
   }, [router])
 
-  const handleAddSampleCompany = async () => {
-    const { success, error } = await createCompany({
-      name: 'Sample Company',
-      industry: 'Technology',
-      status: 'active'
-    })
-    if (!success) alert('Error adding sample company: ' + error)
-  }
-
   const handleFormChange = (e) => {
     const { name, value } = e.target
     setFormData(prev => ({
@@ -340,14 +331,6 @@ export default function CompaniesPage() {
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Add Company
-                  </Button>
-                  <Button
-                    onClick={handleAddSampleCompany}
-                    variant="outline"
-                    className="flex items-center"
-                  >
-                    <Building2 className="h-4 w-4 mr-2" />
-                    Add Sample Company
                   </Button>
                 </div>
               </div>

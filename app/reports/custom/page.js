@@ -101,18 +101,6 @@ export default function CustomReportBuilder() {
     });
   };
 
-  // Generate preview
-  const generatePreview = () => {
-    // In a real app, this would generate actual data based on config
-    const mockData = [
-      { date: '2025-01-01', amount: 1500, type: 'income', category: 'Sales' },
-      { date: '2025-01-02', amount: 500, type: 'expense', category: 'Supplies' },
-      { date: '2025-01-03', amount: 2000, type: 'income', category: 'Services' },
-      { date: '2025-01-04', amount: 800, type: 'expense', category: 'Rent' }
-    ];
-    setPreviewData(mockData);
-  };
-
   // Save custom report
   const handleSaveReport = async () => {
     if (!reportConfig.name) {
@@ -123,7 +111,6 @@ export default function CustomReportBuilder() {
     const report = {
       ...reportConfig,
       type: 'Custom',
-      createdBy: 'current_user', // Assuming a single user for now
       company: selectedCompany
     };
 
@@ -149,10 +136,6 @@ export default function CustomReportBuilder() {
               <p className="mt-1 text-gray-600">Create personalized reports for your business</p>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" onClick={generatePreview}>
-                <Play className="w-4 h-4 mr-2" />
-                Preview
-              </Button>
               <Button onClick={handleSaveReport}>
                 <Save className="w-4 h-4 mr-2" />
                 Save Report
