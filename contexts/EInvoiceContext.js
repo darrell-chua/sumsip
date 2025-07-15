@@ -1,7 +1,6 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useAuth } from './AuthContext';
 import { useCompany } from './CompanyContext';
 
 const EInvoiceContext = createContext({});
@@ -9,7 +8,6 @@ const EInvoiceContext = createContext({});
 export const useEInvoice = () => useContext(EInvoiceContext);
 
 export const EInvoiceProvider = ({ children }) => {
-  const { user } = useAuth();
   const { selectedCompany } = useCompany();
   const [einvoices, setEInvoices] = useState([]);
   const [settings, setSettings] = useState({
@@ -24,11 +22,11 @@ export const EInvoiceProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (user && selectedCompany) {
+    if (selectedCompany) {
       loadEInvoices();
       loadSettings();
     }
-  }, [user, selectedCompany]);
+  }, [selectedCompany]);
 
   const loadEInvoices = () => {
     const saved = localStorage.getItem(`sumsip_einvoices_${selectedCompany?.id}`);

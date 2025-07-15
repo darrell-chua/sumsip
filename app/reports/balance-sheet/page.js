@@ -11,14 +11,12 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, 
   Tooltip, Legend, ResponsiveContainer 
 } from 'recharts';
-import { useAuth } from '@/contexts/AuthContext';
 import { useCompany } from '@/contexts/CompanyContext';
 import { useReports } from '@/contexts/ReportsContext';
 import { Button } from '@/components/ui/Button';
 
 export default function BalanceSheetReport() {
   const router = useRouter();
-  const { user } = useAuth();
   const { selectedCompany } = useCompany();
   const { generateBalanceSheet, saveCustomReport, loading } = useReports();
   

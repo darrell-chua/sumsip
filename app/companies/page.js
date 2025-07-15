@@ -2,13 +2,11 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Plus, Building2, X, Trash2, Edit3 } from 'lucide-react'
-import { useAuth } from '@/contexts/AuthContext'
 import { useCompany } from '@/contexts/CompanyContext'
 import { Button } from '@/components/ui/Button'
 
 export default function CompaniesPage() {
-  const { isAuthenticated, loading } = useAuth()
-  const { companies, addCompany, selectCompany, selectedCompany, deleteCompany, updateCompany } = useCompany()
+  const { companies, createCompany, selectCompany, selectedCompany, deleteCompany, updateCompany } = useCompany()
   const router = useRouter()
   
   const [showAddForm, setShowAddForm] = useState(false)
@@ -26,17 +24,16 @@ export default function CompaniesPage() {
   })
 
   useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      router.push('/login')
-    }
-  }, [isAuthenticated, loading, router])
+    // Show companies for a single user
+  }, [router])
 
-  const handleAddSampleCompany = () => {
-    addCompany({
+  const handleAddSampleCompany = async () => {
+    const { success, error } = await createCompany({
       name: 'Sample Company',
       industry: 'Technology',
       status: 'active'
     })
+    if (!success) alert('Error adding sample company: ' + error)
   }
 
   const handleFormChange = (e) => {
@@ -55,6 +52,7 @@ export default function CompaniesPage() {
     }))
   }
 
+  // Edit company
   const handleEditCompany = (e, company) => {
     e.stopPropagation() // Prevent card selection when clicking edit
     setEditingCompany(company)
@@ -66,6 +64,7 @@ export default function CompaniesPage() {
     setShowEditForm(true)
   }
 
+  // Update company
   const handleUpdateCompany = (e) => {
     e.preventDefault()
     
@@ -90,7 +89,8 @@ export default function CompaniesPage() {
     setShowEditForm(false)
   }
 
-  const handleAddCompany = (e) => {
+  // Add company
+  const handleAddCompany = async (e) => {
     e.preventDefault()
     
     if (!formData.name.trim()) {
@@ -98,11 +98,15 @@ export default function CompaniesPage() {
       return
     }
 
-    addCompany({
+    const { success, error } = await createCompany({
       name: formData.name.trim(),
       industry: formData.industry.trim() || 'Not specified',
       status: formData.status
     })
+    if (!success) {
+      alert('Error adding company: ' + error)
+      return
+    }
 
     // Reset form and close modal
     setFormData({
@@ -113,19 +117,20 @@ export default function CompaniesPage() {
     setShowAddForm(false)
   }
 
+  // Select company
   const handleCompanySelect = (company) => {
     selectCompany(company.id)  // Pass company.id instead of company object
   }
 
-  const handleDeleteCompany = (e, company) => {
+  // Delete company
+  const handleDeleteCompany = async (e, company) => {
     e.stopPropagation() // Prevent card selection when clicking delete
     
     if (window.confirm(`Are you sure you want to delete "${company.name}"? This action cannot be undone.`)) {
-      deleteCompany(company.id)
+      await deleteCompany(company.id)
+      // Optionally reload companies here if not handled by context
     }
   }
-
-  if (loading || !isAuthenticated) return null
 
   return (
     <div className="py-10">

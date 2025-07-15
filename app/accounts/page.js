@@ -2,13 +2,12 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Trash2, Plus, Search, Filter, Download, X, Calendar, Eye } from 'lucide-react'
-import { useAuth } from '@/contexts/AuthContext'
 import { useCompany } from '@/contexts/CompanyContext'
 import { Button } from '@/components/ui/Button'
 import { getLocalStorage, setLocalStorage } from '@/lib/utils'
+import { transactionsService } from '@/lib/services/transactions.service'
 
 export default function AccountsPage() {
-  const { isAuthenticated, loading } = useAuth()
   const { selectedCompany } = useCompany()
   const router = useRouter()
   
@@ -25,48 +24,43 @@ export default function AccountsPage() {
   })
 
   useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      router.push('/login')
-    }
-  }, [isAuthenticated, loading, router])
-
-  useEffect(() => {
+    // Remove any authentication checks, redirects, or logic
+    // Show accounts for a single user
     if (selectedCompany) {
       loadTransactions()
     }
   }, [selectedCompany])
 
-  const loadTransactions = () => {
+  // Load transactions
+  const loadTransactions = async () => {
     if (selectedCompany) {
-      const saved = getLocalStorage(`sumsip_transactions_${selectedCompany.id}`, [])
-      const sorted = saved.sort((a, b) => new Date(b.date) - new Date(a.date))
-      setTransactions(sorted)
+      const { transactions } = await transactionsService.getTransactions(selectedCompany.id)
+      setTransactions(transactions || [])
     }
   }
 
-  const addTransaction = (e) => {
+  // Add transaction
+  const addTransaction = async (e) => {
     e.preventDefault()
-    
     if (!selectedCompany) {
       alert('Please select a company first')
       return
     }
-
     const newTransaction = {
-      id: Date.now().toString(),
+      company_id: selectedCompany.id,
       date: formData.date,
       amount: parseFloat(formData.amount),
       type: formData.type,
       category: formData.category,
       description: formData.description,
-      createdAt: new Date().toISOString()
+      created_at: new Date().toISOString()
     }
-
-    const updatedTransactions = [newTransaction, ...transactions]
-    setTransactions(updatedTransactions)
-    setLocalStorage(`sumsip_transactions_${selectedCompany.id}`, updatedTransactions)
-
-    // Reset form
+    const { transaction, error } = await transactionsService.createTransaction(newTransaction)
+    if (error) {
+      alert('Error adding transaction: ' + error)
+      return
+    }
+    await loadTransactions()
     setFormData({
       date: new Date().toISOString().split('T')[0],
       amount: '',
@@ -76,6 +70,7 @@ export default function AccountsPage() {
     })
   }
 
+  // Handle form change
   const handleFormChange = (e) => {
     const { name, value } = e.target
     setFormData(prev => ({
@@ -103,29 +98,18 @@ export default function AccountsPage() {
       .slice(0, 10)
   }
 
-  const deleteTransaction = (transactionId) => {
+  // Delete transaction
+  const deleteTransaction = async (transactionId) => {
     if (!selectedCompany) {
       alert('Please select a company first')
       return
     }
 
     if (window.confirm('Are you sure you want to delete this transaction?')) {
-      const updatedTransactions = transactions.filter(t => t.id !== transactionId)
-      setTransactions(updatedTransactions)
-      
-      try {
-        setLocalStorage(`sumsip_transactions_${selectedCompany.id}`, updatedTransactions)
-      } catch (error) {
-        console.error('Error saving to localStorage:', error)
-        // Fallback to native localStorage
-        if (typeof window !== 'undefined') {
-          localStorage.setItem(`sumsip_transactions_${selectedCompany.id}`, JSON.stringify(updatedTransactions))
-        }
-      }
+      await transactionsService.deleteTransaction(transactionId)
+      await loadTransactions()
     }
   }
-
-  if (loading || !isAuthenticated) return null
 
   return (
     <div className="py-10">

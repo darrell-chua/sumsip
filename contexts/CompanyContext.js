@@ -1,7 +1,6 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useAuth } from './AuthContext';
 import { companiesService } from '@/lib/services/companies.service';
 
 const CompanyContext = createContext({
@@ -19,22 +18,15 @@ const CompanyContext = createContext({
 export const useCompany = () => useContext(CompanyContext);
 
 export const CompanyProvider = ({ children }) => {
-  const { user, isAuthenticated } = useAuth();
   const [companies, setCompanies] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Load companies when user is authenticated
+  // Only manage company state for a single user
   useEffect(() => {
-    if (isAuthenticated && user) {
-      loadCompanies();
-    } else {
-      // Clear data when not authenticated
-      setCompanies([]);
-      setSelectedCompany(null);
-    }
-  }, [isAuthenticated, user]);
+    loadCompanies();
+  }, []);
 
   // Load selected company from localStorage
   useEffect(() => {

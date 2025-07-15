@@ -1,7 +1,6 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useAuth } from './AuthContext';
 import { useCompany } from './CompanyContext';
 import { transactionsService } from '@/lib/services/transactions.service';
 import { accountsService } from '@/lib/services/accounts.service';
@@ -22,18 +21,17 @@ const ReportsContext = createContext({
 export const useReports = () => useContext(ReportsContext);
 
 export const ReportsProvider = ({ children }) => {
-  const { user } = useAuth();
   const { selectedCompany } = useCompany();
   const [savedReports, setSavedReports] = useState([]);
   const [scheduledReports, setScheduledReports] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (user && selectedCompany) {
+    if (selectedCompany) {
       loadSavedReports();
       loadScheduledReports();
     }
-  }, [user, selectedCompany]);
+  }, [selectedCompany]);
 
   const loadSavedReports = async () => {
     try {
@@ -341,7 +339,6 @@ export const ReportsProvider = ({ children }) => {
         .from('saved_reports')
         .insert({
           company_id: selectedCompany.id,
-          user_id: user.id,
           name: report.name,
           type: report.type || 'custom',
           config: report.config || {},
@@ -384,7 +381,6 @@ export const ReportsProvider = ({ children }) => {
         .from('scheduled_reports')
         .insert({
           company_id: selectedCompany.id,
-          user_id: user.id,
           report_name: reportConfig.reportName,
           report_type: reportConfig.reportType,
           frequency: reportConfig.frequency,

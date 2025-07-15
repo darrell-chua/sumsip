@@ -1,11 +1,8 @@
 import './globals.css';
-import { AuthProvider } from '@/contexts/AuthContext';
 import { CompanyProvider } from '@/contexts/CompanyContext';
 import { ReportsProvider } from '@/contexts/ReportsContext';
 import { EInvoiceProvider } from '@/contexts/EInvoiceContext';
-import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
-import { AuthStatus } from '@/components/AuthStatus';
+import LayoutWrapper from '@/components/LayoutWrapper';
 
 export const metadata = {
   title: 'SumSip - Financial Management',
@@ -18,7 +15,7 @@ export const metadata = {
       { url: '/Logo.svg', type: 'image/svg+xml' },
     ],
     apple: [
-      { url: '/apple-touch-icon.png', sizes: '180x180' }
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
     ],
   },
   manifest: '/site.webmanifest'
@@ -28,22 +25,15 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <AuthProvider>
-          <CompanyProvider>
-            <ReportsProvider>
-              <EInvoiceProvider>
-                <div className="min-h-screen bg-gray-50">
-                  <Header />
-                  <main className="flex-1">
-                    {children}
-                  </main>
-                  <Footer />
-                  <AuthStatus />
-                </div>
-              </EInvoiceProvider>
-            </ReportsProvider>
-          </CompanyProvider>
-        </AuthProvider>
+        <CompanyProvider>
+          <ReportsProvider>
+            <EInvoiceProvider>
+              <LayoutWrapper>
+                {children}
+              </LayoutWrapper>
+            </EInvoiceProvider>
+          </ReportsProvider>
+        </CompanyProvider>
       </body>
     </html>
   );

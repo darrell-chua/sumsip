@@ -1,21 +1,20 @@
-import Link from 'next/link'
-import Image from 'next/image'
-import { ChevronRight, Check } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
-import { HeroSection } from '@/components/HeroSection'
-import { FeaturesSection } from '@/components/FeaturesSection'
-import { PricingSection } from '@/components/PricingSection'
-import { TestimonialsSection } from '@/components/TestimonialsSection'
-import { CTASection } from '@/components/CTASection'
+'use client'
+import { useRouter } from 'next/navigation'
 
-export default function HomePage() {
+export default function Home() {
+  const router = useRouter()
   return (
-    <>
-      <HeroSection />
-      <FeaturesSection />
-      <PricingSection />
-      <TestimonialsSection />
-      <CTASection />
-    </>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4">
+      <h1 className="text-4xl font-bold mb-4 text-indigo-700">Welcome to SumSip</h1>
+      <p className="text-lg text-gray-700 max-w-xl text-center mb-8">
+        SumSip is your all-in-one financial management platform. Effortlessly manage companies, accounts, transactions, e-invoices, and generate insightful reports. Get started and take control of your business finances today!
+      </p>
+      <button
+        className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded-lg shadow transition"
+        onClick={() => router.push('/dashboard')}
+      >
+        Get Started
+      </button>
+    </div>
   )
 }

@@ -2,13 +2,12 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Download, Search, Filter, Trash2, X } from 'lucide-react'
-import { useAuth } from '@/contexts/AuthContext'
 import { useCompany } from '@/contexts/CompanyContext'
 import { Button } from '@/components/ui/Button'
 import { getLocalStorage, setLocalStorage } from '@/lib/utils'
+import { transactionsService } from '@/lib/services/transactions.service'
 
 export default function ViewAllRecordsPage() {
-  const { isAuthenticated, loading } = useAuth()
   const { selectedCompany } = useCompany()
   const router = useRouter()
   
@@ -20,21 +19,15 @@ export default function ViewAllRecordsPage() {
   const [dateTo, setDateTo] = useState('')
 
   useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      router.push('/login')
-    }
-  }, [isAuthenticated, loading, router])
-
-  useEffect(() => {
     if (selectedCompany) {
       loadTransactions()
     }
   }, [selectedCompany])
 
-  const loadTransactions = () => {
+  const loadTransactions = async () => {
     if (selectedCompany) {
-      const saved = getLocalStorage(`sumsip_transactions_${selectedCompany.id}`, [])
-      const sorted = saved.sort((a, b) => new Date(b.date) - new Date(a.date))
+      const { transactions } = await transactionsService.getTransactions(selectedCompany.id)
+      const sorted = (transactions || []).sort((a, b) => new Date(b.date) - new Date(a.date))
       setTransactions(sorted)
     }
   }
@@ -113,8 +106,6 @@ export default function ViewAllRecordsPage() {
     setDateFrom('')
     setDateTo('')
   }
-
-  if (loading || !isAuthenticated) return null
 
   if (!selectedCompany) {
     return (

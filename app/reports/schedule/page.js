@@ -8,14 +8,12 @@ import {
   Play, Pause, Edit, Trash2, CheckCircle, 
   XCircle, AlertCircle, Send, Users
 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
 import { useCompany } from '@/contexts/CompanyContext';
 import { useReports } from '@/contexts/ReportsContext';
 import { Button } from '@/components/ui/Button';
 
 export default function ScheduledReportsPage() {
   const router = useRouter();
-  const { user } = useAuth();
   const { selectedCompany } = useCompany();
   const { scheduledReports, scheduleReport } = useReports();
   const [showScheduleModal, setShowScheduleModal] = useState(false);
@@ -28,7 +26,7 @@ export default function ScheduledReportsPage() {
     dayOfWeek: '1', // Monday
     dayOfMonth: '1',
     time: '08:00',
-    emailRecipients: [user?.email || ''],
+    emailRecipients: [''],
     format: 'pdf',
     enabled: true
   });
@@ -72,7 +70,7 @@ export default function ScheduledReportsPage() {
       dayOfWeek: '1',
       dayOfMonth: '1',
       time: '08:00',
-      emailRecipients: [user?.email || ''],
+      emailRecipients: [''],
       format: 'pdf',
       enabled: true
     });
@@ -83,7 +81,7 @@ export default function ScheduledReportsPage() {
     setEditingSchedule(schedule);
     setScheduleForm({
       ...schedule,
-      emailRecipients: schedule.emailRecipients || [user?.email || '']
+      emailRecipients: schedule.emailRecipients || ['']
     });
     setShowScheduleModal(true);
   };
@@ -98,7 +96,7 @@ export default function ScheduledReportsPage() {
       ...scheduleForm,
       id: editingSchedule?.id || Date.now(),
       company: selectedCompany,
-      createdBy: user.email
+      createdBy: 'current_user@example.com' // Placeholder for current user
     };
 
     if (editingSchedule) {

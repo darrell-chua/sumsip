@@ -11,14 +11,12 @@ import {
   AreaChart, Area, LineChart, Line, BarChart, Bar, XAxis, YAxis, 
   CartesianGrid, Tooltip, Legend, ResponsiveContainer 
 } from 'recharts';
-import { useAuth } from '@/contexts/AuthContext';
 import { useCompany } from '@/contexts/CompanyContext';
 import { useReports } from '@/contexts/ReportsContext';
 import { Button } from '@/components/ui/Button';
 
 export default function CashFlowReport() {
   const router = useRouter();
-  const { user } = useAuth();
   const { selectedCompany } = useCompany();
   const { generateCashFlowReport, saveCustomReport, loading } = useReports();
   

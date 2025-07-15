@@ -8,14 +8,12 @@ import {
   Calendar, Filter, BarChart3, PieChart, LineChart, 
   Table, Download, GripVertical
 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
 import { useCompany } from '@/contexts/CompanyContext';
 import { useReports } from '@/contexts/ReportsContext';
 import { Button } from '@/components/ui/Button';
 
 export default function CustomReportBuilder() {
   const router = useRouter();
-  const { user } = useAuth();
   const { selectedCompany } = useCompany();
   const { saveCustomReport } = useReports();
   
@@ -103,6 +101,7 @@ export default function CustomReportBuilder() {
     });
   };
 
+  // Generate preview
   const generatePreview = () => {
     // In a real app, this would generate actual data based on config
     const mockData = [
@@ -114,6 +113,7 @@ export default function CustomReportBuilder() {
     setPreviewData(mockData);
   };
 
+  // Save custom report
   const handleSaveReport = async () => {
     if (!reportConfig.name) {
       alert('Please enter a report name');
@@ -123,7 +123,7 @@ export default function CustomReportBuilder() {
     const report = {
       ...reportConfig,
       type: 'Custom',
-      createdBy: user.email,
+      createdBy: 'current_user', // Assuming a single user for now
       company: selectedCompany
     };
 

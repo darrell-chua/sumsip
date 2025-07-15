@@ -4,24 +4,16 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FileText, Plus, Settings, CheckCircle, Clock, XCircle, AlertCircle, Download, Search, Filter } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
 import { useCompany } from '@/contexts/CompanyContext';
 import { useEInvoice } from '@/contexts/EInvoiceContext';
 import { Button } from '@/components/ui/Button';
 
 export default function EInvoiceDashboard() {
   const router = useRouter();
-  const { user, isAuthenticated, loading: authLoading } = useAuth();
   const { selectedCompany } = useCompany();
   const { einvoices, settings, loading } = useEInvoice();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
-
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.push('/login');
-    }
-  }, [isAuthenticated, authLoading, router]);
 
   const filteredInvoices = einvoices.filter(invoice => {
     const matchesSearch = invoice.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -64,8 +56,6 @@ export default function EInvoiceDashboard() {
       </span>
     );
   };
-
-  if (authLoading || !isAuthenticated) return null;
 
   const needsSetup = !settings.tin || !settings.msic;
 

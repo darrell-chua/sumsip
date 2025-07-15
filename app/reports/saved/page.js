@@ -7,14 +7,12 @@ import {
   ArrowLeft, FileText, Download, Trash2, Eye, Mail,
   Calendar, Filter, Search, FolderOpen, Grid, List
 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
 import { useCompany } from '@/contexts/CompanyContext';
 import { useReports } from '@/contexts/ReportsContext';
 import { Button } from '@/components/ui/Button';
 
 export default function SavedReportsPage() {
   const router = useRouter();
-  const { user } = useAuth();
   const { selectedCompany } = useCompany();
   const { savedReports, deleteReport } = useReports();
   const [viewMode, setViewMode] = useState('grid'); // grid or list

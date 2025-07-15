@@ -2,14 +2,9 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Logo } from '@/components/Logo'
-import { UserNav } from '@/components/UserNav'
-import { useAuth } from '@/contexts/AuthContext'
 
 export default function Navbar() {
   const pathname = usePathname()
-  const { user, isAuthenticated } = useAuth()
-
-  if (!isAuthenticated) return null
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard' },
@@ -43,9 +38,7 @@ export default function Navbar() {
               ))}
             </div>
           </div>
-          
           <div className="flex items-center">
-            <UserNav user={user} />
           </div>
         </div>
       </div>

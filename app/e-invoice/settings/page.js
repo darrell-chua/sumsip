@@ -4,14 +4,12 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Save, Info, Key, Building, FileText } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
 import { useCompany } from '@/contexts/CompanyContext';
 import { useEInvoice } from '@/contexts/EInvoiceContext';
 import { Button } from '@/components/ui/Button';
 
 export default function EInvoiceSettings() {
   const router = useRouter();
-  const { user } = useAuth();
   const { selectedCompany } = useCompany();
   const { settings, saveSettings } = useEInvoice();
   

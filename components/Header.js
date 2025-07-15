@@ -3,36 +3,26 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Menu, X, ChevronDown } from 'lucide-react'
-import { useAuth } from '@/contexts/AuthContext'
 import { useCompany } from '@/contexts/CompanyContext'
 import Logo from '@/components/Logo'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/Button'
-import { UserNav } from '@/components/UserNav'
 import CompanyDropdown from '@/components/CompanyDropdown'
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const pathname = usePathname()
-  const { isAuthenticated, user, logout } = useAuth()
   const { selectedCompany, companies } = useCompany()
 
-  // Navigation items based on auth state
-  const navigation = !isAuthenticated
-    ? [
-      { name: 'Home', href: '/' },
-      { name: 'Features', href: '/#features' },
-      { name: 'Pricing', href: '/#pricing' },
-      { name: 'About', href: '/about' },
-    ]
-    : [
-      { name: 'Dashboard', href: '/dashboard' },
-      { name: 'Accounts', href: '/accounts' },
-      { name: 'E-Invoice', href: '/e-invoice' },
-      { name: 'Reports', href: '/reports' },
-      { name: 'Companies', href: '/companies' },
-    ]
+  // Navigation items for single user
+  const navigation = [
+    { name: 'Dashboard', href: '/dashboard' },
+    { name: 'Accounts', href: '/accounts' },
+    { name: 'E-Invoice', href: '/e-invoice' },
+    { name: 'Reports', href: '/reports' },
+    { name: 'Companies', href: '/companies' },
+  ]
 
   // Handle scroll events for styling
   useEffect(() => {
@@ -49,22 +39,15 @@ export function Header() {
   }, [])
 
   return (
-    <header
-      className={cn(
-        'sticky top-0 z-50 transition-all duration-200',
-        scrolled
-          ? 'bg-white/80 backdrop-blur-md border-b shadow-sm'
-          : 'bg-transparent'
-      )}
-    >
-      <nav className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8" aria-label="Global">
+    <header className={cn('sticky top-0 z-40 w-full bg-white shadow', scrolled && 'shadow-md')}> 
+      <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 lg:px-8" aria-label="Global">
         <div className="flex lg:flex-1">
-          <Link href="/" className="-m-1.5 p-1.5">
+          <Link href="/" className="-m-1.5 p-1.5 flex items-center gap-2">
             <span className="sr-only">SumSip</span>
-            <Logo />  {/* This will now show icon + text */}
+            <Logo />
+            <span className="font-bold text-lg text-indigo-700">SumSip</span>
           </Link>
         </div>
-
         <div className="flex lg:hidden">
           <button
             type="button"
@@ -75,40 +58,24 @@ export function Header() {
             <Menu className="h-6 w-6" aria-hidden="true" />
           </button>
         </div>
-
-        <div className="hidden lg:flex lg:gap-x-8">
+        <div className="hidden lg:flex lg:gap-x-8 lg:items-center">
           {navigation.map((item) => (
             <Link
               key={item.name}
               href={item.href}
               className={cn(
-                'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors',
-                pathname === item.href || pathname.startsWith(item.href + '/')
-                  ? 'border-indigo-500 text-gray-900'
-                  : 'border-transparent text-gray-600 hover:border-gray-300 hover:text-gray-900'
+                pathname === item.href
+                  ? 'text-indigo-600 border-b-2 border-indigo-600'
+                  : 'text-gray-700 hover:text-indigo-600 border-b-2 border-transparent',
+                'text-base font-medium px-2 py-1 transition-colors duration-150'
               )}
             >
               {item.name}
             </Link>
           ))}
-        </div>
-
-        <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-4 lg:items-center">
-          {isAuthenticated ? (
-            <>
-              {companies.length > 0 && <CompanyDropdown />}
-              <UserNav user={user} />
-            </>
-          ) : (
-            <Link href="/login">
-              <Button size="sm">
-                Log in
-              </Button>
-            </Link>
-          )}
+          {companies.length > 0 && <CompanyDropdown />}
         </div>
       </nav>
-
       {/* Mobile menu */}
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-50 bg-white">
@@ -117,7 +84,7 @@ export function Header() {
             <div className="flex items-center justify-between">
               <Link href="/" className="-m-1.5 p-1.5">
                 <span className="sr-only">SumSip</span>
-                <Logo />  {/* This is responsive - shows icon only on mobile */}
+                <Logo />
               </Link>
               <button
                 type="button"
@@ -135,53 +102,18 @@ export function Header() {
                     <Link
                       key={item.name}
                       href={item.href}
-                      className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+                      className={cn(
+                        pathname === item.href
+                          ? 'text-indigo-600 border-l-4 border-indigo-600 bg-indigo-50'
+                          : 'text-gray-700 hover:text-indigo-600 border-l-4 border-transparent',
+                        'block rounded-lg px-3 py-2 text-base font-medium transition-colors duration-150'
+                      )}
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       {item.name}
                     </Link>
                   ))}
-                </div>
-
-                {/* Mobile Company Selector */}
-                {isAuthenticated && companies.length > 0 && (
-                  <div className="py-6">
-                    <div className="mb-4">
-                      <h3 className="text-sm font-medium text-gray-900 mb-2">Company</h3>
-                      <CompanyDropdown />
-                    </div>
-                  </div>
-                )}
-
-                <div className="py-6">
-                  {isAuthenticated ? (
-                    <>
-                      <Link
-                        href="/profile"
-                        className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        Profile
-                      </Link>
-                      <button
-                        className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50 w-full text-left"
-                        onClick={() => {
-                          logout()
-                          setMobileMenuOpen(false)
-                        }}
-                      >
-                        Log out
-                      </button>
-                    </>
-                  ) : (
-                    <Link
-                      href="/login"
-                      className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      Log in
-                    </Link>
-                  )}
+                  {companies.length > 0 && <CompanyDropdown />}
                 </div>
               </div>
             </div>

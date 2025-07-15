@@ -1,13 +1,11 @@
-// components/Logo.js
 import Image from 'next/image';
 
-// Main logo for header/footer - with text
 export function Logo({ className = "" }) {
   return (
     <div className={`flex items-center gap-3 ${className}`}>
       <div className="relative h-10 w-10">
         <Image
-          src="/Icon_Logo.svg"  // Using the square logo for consistency
+          src="/Icon_Logo.svg"
           alt="SumSip Logo"
           fill
           priority
@@ -21,13 +19,12 @@ export function Logo({ className = "" }) {
   );
 }
 
-// Icon only version
 export function LogoIcon({ className = "h-8 w-8" }) {
   return (
-    <div className={`relative ${className}`}>
+    <div className={className}>
       <Image
-        src="/Logo.svg"
-        alt="SumSip Icon"
+        src="/Icon_Logo.svg"
+        alt="SumSip Logo"
         fill
         priority
         className="object-contain"
@@ -36,11 +33,9 @@ export function LogoIcon({ className = "h-8 w-8" }) {
   );
 }
 
-// Mobile responsive logo (icon on mobile, with text on desktop)
 export function ResponsiveLogo({ className = "" }) {
   return (
     <>
-      {/* Desktop: Icon + Text */}
       <div className={`hidden sm:flex items-center gap-3 ${className}`}>
         <div className="relative h-10 w-10">
           <Image
@@ -55,8 +50,6 @@ export function ResponsiveLogo({ className = "" }) {
           SumSip
         </span>
       </div>
-      
-      {/* Mobile: Icon only */}
       <div className={`relative h-10 w-10 sm:hidden ${className}`}>
         <Image
           src="/Logo.svg"
@@ -70,5 +63,4 @@ export function ResponsiveLogo({ className = "" }) {
   );
 }
 
-// Default export
 export default Logo;

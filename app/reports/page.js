@@ -8,14 +8,12 @@ import {
   Download, Clock, Plus, Filter, ChevronRight, FileBarChart,
   PieChart, Activity
 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
 import { useCompany } from '@/contexts/CompanyContext';
 import { useReports } from '@/contexts/ReportsContext';
 import { Button } from '@/components/ui/Button';
 
 export default function ReportsPage() {
   const router = useRouter();
-  const { user, isAuthenticated, loading: authLoading } = useAuth();
   const { selectedCompany } = useCompany();
   const { savedReports, scheduledReports } = useReports();
   const [quickStats, setQuickStats] = useState({
@@ -26,15 +24,6 @@ export default function ReportsPage() {
   });
 
   useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.push('/login');
-    }
-  }, [isAuthenticated, authLoading, router]);
-
-  useEffect(() => {
-    if (selectedCompany) {
-      calculateQuickStats();
-    }
   }, [selectedCompany]);
 
   const calculateQuickStats = () => {
@@ -133,8 +122,6 @@ export default function ReportsPage() {
     };
     return colors[color] || colors.blue;
   };
-
-  if (authLoading || !isAuthenticated) return null;
 
   return (
     <div className="py-10">

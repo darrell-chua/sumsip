@@ -2,7 +2,6 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 
 export default function ProfitChart({ period, companyId }) {
-  // Sample data - in real app, this would come from your database
   const getChartData = () => {
     const baseData = {
       monthly: [
@@ -26,10 +25,8 @@ export default function ProfitChart({ period, companyId }) {
         { name: '2024', profit: 65000 },
       ],
     }
-
     return baseData[period] || baseData.monthly
   }
-
   return (
     <ResponsiveContainer width="100%" height={400}>
       <LineChart data={getChartData()}>

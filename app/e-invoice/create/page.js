@@ -4,60 +4,46 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Plus, Trash2, Save, Send } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
 import { useCompany } from '@/contexts/CompanyContext';
 import { useEInvoice } from '@/contexts/EInvoiceContext';
 import { Button } from '@/components/ui/Button';
 
 export default function CreateEInvoice() {
   const router = useRouter();
-  const { user } = useAuth();
   const { selectedCompany } = useCompany();
   const { createEInvoice, submitToLHDN, settings } = useEInvoice();
-  
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [invoice, setInvoice] = useState({
-    // Document Info
     invoiceType: 'invoice',
     invoiceDate: new Date().toISOString().split('T')[0],
     invoiceTime: new Date().toTimeString().split(' ')[0].substring(0, 5),
-    
-    // Supplier Info (from company)
     supplierName: selectedCompany?.name || '',
     supplierTin: settings.tin || '',
     supplierSstReg: settings.sst || '',
     supplierMsic: settings.msic || '',
     supplierBusinessActivity: settings.businessActivity || '',
     supplierAddress: selectedCompany?.address || '',
-    
-    // Customer Info
     customerName: '',
     customerTin: '',
     customerSstReg: '',
     customerAddress: '',
     customerEmail: '',
     customerPhone: '',
-    
-    // Line Items
     items: [
       {
         id: 1,
         description: '',
         quantity: 1,
         unitPrice: 0,
-        taxType: 'SR', // Standard Rate
+        taxType: 'SR',
         taxRate: 6,
         taxAmount: 0,
         amount: 0
       }
     ],
-    
-    // Totals
     subtotal: 0,
     totalTax: 0,
     totalAmount: 0,
-    
-    // Payment Info
     paymentMethod: 'cash',
     paymentTerms: 'cash',
     paymentReference: ''

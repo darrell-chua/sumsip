@@ -4,13 +4,11 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { TrendingUp, TrendingDown, DollarSign, Calendar } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts'
-import { useAuth } from '@/contexts/AuthContext'
 import { useCompany } from '@/contexts/CompanyContext'
 import { Button } from '@/components/ui/Button'
-import { getLocalStorage } from '@/lib/utils'
+import { transactionsService } from '@/lib/services/transactions.service'
 
 export default function DashboardPage() {
-  const { user, isAuthenticated, loading } = useAuth()
   const { selectedCompany } = useCompany()
   const router = useRouter()
   
@@ -19,21 +17,16 @@ export default function DashboardPage() {
   const [selectedCategories, setSelectedCategories] = useState([])
 
   useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      router.push('/login')
-    }
-  }, [isAuthenticated, loading, router])
-
-  useEffect(() => {
     if (selectedCompany) {
       loadTransactions()
     }
   }, [selectedCompany])
 
-  const loadTransactions = () => {
+  // Load transactions
+  const loadTransactions = async () => {
     if (selectedCompany) {
-      const saved = getLocalStorage(`sumsip_transactions_${selectedCompany.id}`, [])
-      setTransactions(saved)
+      const { transactions } = await transactionsService.getTransactions(selectedCompany.id)
+      setTransactions(transactions || [])
     }
   }
 
@@ -48,7 +41,7 @@ export default function DashboardPage() {
     
   const netProfit = totalIncome - totalExpenses
 
-  // Calculate growth (comparing with previous period - simplified)
+  // Calculate growth
   const recentTransactions = transactions.filter(t => {
     const transactionDate = new Date(t.date)
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
@@ -185,8 +178,6 @@ export default function DashboardPage() {
   // Get the last 3 months for chart colors
   const now = new Date()
   const monthColors = ['#8884d8', '#82ca9d', '#ffc658']
-
-  if (loading || !isAuthenticated) return null
 
   return (
     <div className="py-10">
@@ -485,29 +476,7 @@ export default function DashboardPage() {
               )}
 
               {/* Quick Actions */}
-              <div className="bg-white rounded-lg shadow p-6">
-                <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <Link href="/accounts">
-                    <Button variant="outline" className="w-full">
-                      Add Transaction
-                    </Button>
-                  </Link>
-                  <Link href="/companies">
-                    <Button variant="outline" className="w-full">
-                      Manage Companies
-                    </Button>
-                  </Link>
-                  <Link href="/profile">
-                    <Button variant="outline" className="w-full">
-                      Profile Settings
-                    </Button>
-                  </Link>
-                  <Button variant="outline" className="w-full" onClick={() => window.print()}>
-                    Print Report
-                  </Button>
-                </div>
-              </div>
+              {/* Removed Quick Actions section */}
             </>
           ) : (
             <div className="bg-white rounded-lg shadow p-8 text-center">
