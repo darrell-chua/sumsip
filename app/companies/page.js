@@ -110,7 +110,7 @@ export default function CompaniesPage() {
 
   // Select company
   const handleCompanySelect = (company) => {
-    selectCompany(company.id)  // Pass company.id instead of company object
+    selectCompany(company); // Pass the full company object, not just company.id
   }
 
   // Delete company

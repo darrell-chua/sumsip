@@ -9,8 +9,8 @@ export default function CompanyDropdown() {
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
 
-  const handleCompanySelect = (id) => {
-    selectCompany(id)
+  const handleCompanySelect = (company) => {
+    selectCompany(company)
     setIsOpen(false)
   }
 
@@ -51,7 +51,7 @@ export default function CompanyDropdown() {
                 companies.map(company => (
                   <button
                     key={company.id}
-                    onClick={() => handleCompanySelect(company.id)}
+                    onClick={() => handleCompanySelect(company)}
                     className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center ${
                       selectedCompany && selectedCompany.id === company.id 
                         ? 'bg-indigo-50 text-indigo-900 font-medium' 
