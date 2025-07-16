@@ -297,6 +297,7 @@ export default function ViewAllRecordsPage() {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Recorded By</th>
                     <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
@@ -334,6 +335,9 @@ export default function ViewAllRecordsPage() {
                           transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
                         }`}>
                           RM{transaction.amount.toFixed(2)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                          {transaction.profiles?.username || transaction.profiles?.email || 'Unknown'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-center">
                           <button

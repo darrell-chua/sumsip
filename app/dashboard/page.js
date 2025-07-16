@@ -7,14 +7,28 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import { useCompany } from '@/contexts/CompanyContext'
 import { Button } from '@/components/ui/Button'
 import { transactionsService } from '@/lib/services/transactions.service'
+import { supabase } from '../../lib/supabase';
 
 export default function DashboardPage() {
   const { selectedCompany } = useCompany()
   const router = useRouter()
+  const [authLoading, setAuthLoading] = useState(true);
   
   const [transactions, setTransactions] = useState([])
   const [chartPeriod, setChartPeriod] = useState('daily')
   const [selectedCategories, setSelectedCategories] = useState([])
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) {
+        router.replace('/login');
+      } else {
+        setAuthLoading(false);
+      }
+    };
+    checkAuth();
+  }, [router]);
 
   useEffect(() => {
     if (selectedCompany) {
@@ -178,6 +192,8 @@ export default function DashboardPage() {
   // Get the last 3 months for chart colors
   const now = new Date()
   const monthColors = ['#8884d8', '#82ca9d', '#ffc658']
+
+  if (authLoading) return null;
 
   return (
     <div className="py-10">

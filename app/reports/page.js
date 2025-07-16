@@ -7,6 +7,7 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import autoTable from 'jspdf-autotable';
+import { useRouter } from 'next/navigation';
 
 
 const categories = [
@@ -25,6 +26,8 @@ const types = [
 
 export default function ReportsPage() {
   const { selectedCompany } = useCompany();
+  const router = useRouter();
+  const [authLoading, setAuthLoading] = useState(true);
   const [transactions, setTransactions] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [dateFrom, setDateFrom] = useState('');
@@ -32,6 +35,18 @@ export default function ReportsPage() {
   const [category, setCategory] = useState('');
   const [type, setType] = useState('');
   const chartRef = useRef();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) {
+        router.replace('/login');
+      } else {
+        setAuthLoading(false);
+      }
+    };
+    checkAuth();
+  }, [router]);
 
   useEffect(() => {
     if (!selectedCompany) return;
@@ -113,6 +128,8 @@ export default function ReportsPage() {
     if (filtered.length > 20) doc.text('... (truncated)', 20, doc.lastAutoTable.finalY + 6);
     doc.save('transaction-report.pdf');
   };
+
+  if (authLoading) return null;
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">

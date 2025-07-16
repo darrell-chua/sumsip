@@ -1,18 +1,22 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { Menu, X, ChevronDown } from 'lucide-react'
+import { usePathname, useRouter } from 'next/navigation'
+import { Menu, X, ChevronDown, LogOut } from 'lucide-react'
 import { useCompany } from '@/contexts/CompanyContext'
 import Logo from '@/components/Logo'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/Button'
 import CompanyDropdown from '@/components/CompanyDropdown'
+import { supabase } from '../lib/supabase';
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [isOwner, setIsOwner] = useState(false)
+  const [user, setUser] = useState(null);
   const pathname = usePathname()
+  const router = useRouter()
   const { selectedCompany, companies } = useCompany()
 
   // Navigation items for single user
@@ -23,6 +27,23 @@ export function Header() {
     { name: 'Reports', href: '/reports' },
     { name: 'Companies', href: '/companies' },
   ]
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+      setIsOwner(JSON.parse(storedUser).role === 'owner');
+    } else {
+      setUser(null);
+      setIsOwner(false);
+    }
+  }, [pathname]);
+
+  const handleLogout = async () => {
+    localStorage.removeItem('user');
+    await supabase.auth.signOut();
+    router.push('/login');
+  };
 
   // Handle scroll events for styling
   useEffect(() => {
@@ -45,7 +66,6 @@ export function Header() {
           <Link href="/" className="-m-1.5 p-1.5 flex items-center gap-2">
             <span className="sr-only">SumSip</span>
             <Logo />
-            <span className="font-bold text-lg text-indigo-700">SumSip</span>
           </Link>
         </div>
         <div className="flex lg:hidden">
@@ -73,7 +93,30 @@ export function Header() {
               {item.name}
             </Link>
           ))}
+          {isOwner && (
+            <Link
+              href="/roles"
+              className={cn(
+                pathname === '/roles'
+                  ? 'text-indigo-600 border-b-2 border-indigo-600'
+                  : 'text-gray-700 hover:text-indigo-600 border-b-2 border-transparent',
+                'text-base font-medium px-2 py-1 transition-colors duration-150'
+              )}
+            >
+              Roles
+            </Link>
+          )}
           {companies.length > 0 && <CompanyDropdown />}
+          {user && (
+            <button
+              onClick={handleLogout}
+              className="ml-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold shadow flex items-center"
+              aria-label="Logout"
+              title="Logout"
+            >
+              <LogOut className="w-5 h-5" />
+            </button>
+          )}
         </div>
       </nav>
       {/* Mobile menu */}
@@ -113,6 +156,20 @@ export function Header() {
                       {item.name}
                     </Link>
                   ))}
+                  {isOwner && (
+                    <Link
+                      href="/roles"
+                      className={cn(
+                        pathname === '/roles'
+                          ? 'text-indigo-600 border-l-4 border-indigo-600 bg-indigo-50'
+                          : 'text-gray-700 hover:text-indigo-600 border-l-4 border-transparent',
+                        'block rounded-lg px-3 py-2 text-base font-medium transition-colors duration-150'
+                      )}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Manage Roles
+                    </Link>
+                  )}
                   {companies.length > 0 && <CompanyDropdown />}
                 </div>
               </div>

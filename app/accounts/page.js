@@ -6,10 +6,12 @@ import { useCompany } from '@/contexts/CompanyContext'
 import { Button } from '@/components/ui/Button'
 import { getLocalStorage, setLocalStorage } from '@/lib/utils'
 import { transactionsService } from '@/lib/services/transactions.service'
+import { supabase } from '../../lib/supabase';
 
 export default function AccountsPage() {
   const { selectedCompany } = useCompany()
   const router = useRouter()
+  const [authLoading, setAuthLoading] = useState(true);
   
   const [transactions, setTransactions] = useState([])
   const [categoryFilter, setCategoryFilter] = useState('all')
@@ -22,6 +24,18 @@ export default function AccountsPage() {
     category: '',
     description: ''
   })
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) {
+        router.replace('/login');
+      } else {
+        setAuthLoading(false);
+      }
+    };
+    checkAuth();
+  }, [router]);
 
   useEffect(() => {
     // Remove any authentication checks, redirects, or logic
@@ -110,6 +124,8 @@ export default function AccountsPage() {
       await loadTransactions()
     }
   }
+
+  if (authLoading) return null;
 
   return (
     <div className="py-10">
@@ -267,6 +283,7 @@ export default function AccountsPage() {
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                         <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Recorded By</th>
                         <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                       </tr>
                     </thead>
@@ -308,6 +325,9 @@ export default function AccountsPage() {
                               transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
                             }`}>
                               RM{transaction.amount.toFixed(2)}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                              {transaction.profiles?.username || transaction.profiles?.email || 'Unknown'}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-center">
                               <button

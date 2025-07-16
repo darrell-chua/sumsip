@@ -4,28 +4,43 @@ import { useRouter } from 'next/navigation'
 import { Plus, Building2, X, Trash2, Edit3 } from 'lucide-react'
 import { useCompany } from '@/contexts/CompanyContext'
 import { Button } from '@/components/ui/Button'
+import { supabase } from '../../lib/supabase';
 
 export default function CompaniesPage() {
-  const { companies, createCompany, selectCompany, selectedCompany, deleteCompany, updateCompany } = useCompany()
-  const router = useRouter()
-  
-  const [showAddForm, setShowAddForm] = useState(false)
-  const [showEditForm, setShowEditForm] = useState(false)
-  const [editingCompany, setEditingCompany] = useState(null)
+  const { companies, createCompany, selectCompany, selectedCompany, deleteCompany, updateCompany } = useCompany();
+  const router = useRouter();
+  const [authLoading, setAuthLoading] = useState(true);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [editingCompany, setEditingCompany] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     industry: '',
     status: 'active'
-  })
+  });
   const [editFormData, setEditFormData] = useState({
     name: '',
     industry: '',
     status: 'active'
-  })
+  });
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) {
+        router.replace('/login');
+      } else {
+        setAuthLoading(false);
+      }
+    };
+    checkAuth();
+  }, [router]);
 
   useEffect(() => {
     // Show companies for a single user
-  }, [router])
+  }, [router]);
+
+  if (authLoading) return null;
 
   const handleFormChange = (e) => {
     const { name, value } = e.target

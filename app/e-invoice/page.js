@@ -7,6 +7,7 @@ import { FileText, Plus, Settings, CheckCircle, Clock, XCircle, AlertCircle, Dow
 import { useCompany } from '@/contexts/CompanyContext';
 import { useEInvoice } from '@/contexts/EInvoiceContext';
 import { Button } from '@/components/ui/Button';
+import { supabase } from '../../lib/supabase';
 
 export default function EInvoiceDashboard() {
   const router = useRouter();
@@ -14,6 +15,21 @@ export default function EInvoiceDashboard() {
   const { einvoices, settings, loading } = useEInvoice();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [authLoading, setAuthLoading] = useState(true);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) {
+        router.replace('/login');
+      } else {
+        setAuthLoading(false);
+      }
+    };
+    checkAuth();
+  }, [router]);
+
+  if (authLoading) return null;
 
   const filteredInvoices = einvoices.filter(invoice => {
     const matchesSearch = invoice.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
