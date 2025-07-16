@@ -23,6 +23,7 @@ export default function CompaniesPage() {
     industry: '',
     status: 'active'
   });
+  const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -35,6 +36,15 @@ export default function CompaniesPage() {
     };
     checkAuth();
   }, [router]);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUserRole(JSON.parse(storedUser).role);
+    } else {
+      setUserRole(null);
+    }
+  }, []);
 
   useEffect(() => {
     // Show companies for a single user
@@ -61,6 +71,10 @@ export default function CompaniesPage() {
   // Edit company
   const handleEditCompany = (e, company) => {
     e.stopPropagation() // Prevent card selection when clicking edit
+    if (userRole === 'accountant') {
+      alert('Accountants are not allowed to edit companies.');
+      return;
+    }
     setEditingCompany(company)
     setEditFormData({
       name: company.name,
@@ -98,7 +112,10 @@ export default function CompaniesPage() {
   // Add company
   const handleAddCompany = async (e) => {
     e.preventDefault()
-    
+    if (userRole === 'accountant') {
+      alert('Accountants are not allowed to add companies.');
+      return;
+    }
     if (!formData.name.trim()) {
       alert('Please enter a company name')
       return
@@ -131,6 +148,10 @@ export default function CompaniesPage() {
   // Delete company
   const handleDeleteCompany = async (e, company) => {
     e.stopPropagation() // Prevent card selection when clicking delete
+    if (userRole === 'accountant') {
+      alert('Accountants are not allowed to delete companies.');
+      return;
+    }
     
     if (window.confirm(`Are you sure you want to delete "${company.name}"? This action cannot be undone.`)) {
       await deleteCompany(company.id)
@@ -152,6 +173,8 @@ export default function CompaniesPage() {
             <Button
               onClick={() => setShowAddForm(true)}
               className="flex items-center"
+              disabled={userRole === 'accountant'}
+              style={userRole === 'accountant' ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
             >
               <Plus className="h-4 w-4 mr-2" />
               Add Company
@@ -343,6 +366,8 @@ export default function CompaniesPage() {
                   <Button
                     onClick={() => setShowAddForm(true)}
                     className="flex items-center"
+                    disabled={userRole === 'accountant'}
+                    style={userRole === 'accountant' ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Add Company
@@ -381,20 +406,24 @@ export default function CompaniesPage() {
                             Selected
                           </span>
                         )}
-                        <button
-                          onClick={(e) => handleEditCompany(e, company)}
-                          className="text-blue-500 hover:text-blue-700 p-1 rounded-full hover:bg-blue-50 transition-colors"
-                          title="Edit company"
-                        >
-                          <Edit3 className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={(e) => handleDeleteCompany(e, company)}
-                          className="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 transition-colors"
-                          title="Delete company"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+                        {userRole !== 'accountant' && (
+                          <button
+                            onClick={(e) => handleEditCompany(e, company)}
+                            className="text-blue-500 hover:text-blue-700 p-1 rounded-full hover:bg-blue-50 transition-colors"
+                            title="Edit company"
+                          >
+                            <Edit3 className="h-4 w-4" />
+                          </button>
+                        )}
+                        {userRole !== 'accountant' && (
+                          <button
+                            onClick={(e) => handleDeleteCompany(e, company)}
+                            className="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 transition-colors"
+                            title="Delete company"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
